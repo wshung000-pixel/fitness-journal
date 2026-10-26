@@ -1,10 +1,10 @@
-import {SUPABASE_URL as URL,SUPABASE_ANON_KEY as KEY} from './config.js';
+import {SUPABASE_URL as SUPA_URL,SUPABASE_ANON_KEY as KEY} from './config.js';
 const root=document.querySelector('#app'), nav=document.querySelector('#nav'), badge=document.querySelector('#status');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
 const id=()=>crypto.randomUUID(), exnames=['深蹲','臥推','硬舉','啞鈴臥推','啞鈴肩推','滑輪下拉','坐姿划船','腿推舉','引體向上','啞鈴二頭彎舉','三頭肌下壓','跑步','飛輪','快走'];
 const s={user:null,tab:'today',workouts:[],plans:[],body:[],current:null,editing:false,busy:false};
-const configOK=!URL.includes('YOUR_PROJECT')&&!KEY.includes('YOUR_');
+const configOK=!SUPA_URL.includes('YOUR_PROJECT')&&!KEY.includes('YOUR_');
 let db=null;
 function notify(message){alert(message)}
 function prev(name){for(const w of s.workouts){const x=w.entries.find(e=>e.name===name);if(x)return x}return null}
@@ -43,4 +43,4 @@ else if(a==='del-body')await del('body_metrics',key);
 else if(a==='logout'){if(s.current&&!confirm('目前訓練尚未儲存，確定登出？'))return;const r=await db.auth.signOut();if(r.error)throw r.error}
 else if(a==='backup'){const blob=new Blob([JSON.stringify({exported_at:new Date().toISOString(),workouts:s.workouts,plans:s.plans,body_metrics:s.body},null,2)],{type:'application/json'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='fitness-backup-'+today()+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}}catch(err){notify('操作失敗：'+err.message)}finally{s.busy=false}});
 render();
-if(configOK){try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');db=createClient(URL,KEY);db.auth.onAuthStateChange((_,session)=>{const prevId=s.user?.id;s.user=session?.user||null;if(!s.user){s.workouts=[];s.plans=[];s.body=[];s.current=null;render()}else if(prevId!==s.user.id){setTimeout(async()=>{try{await refresh();render()}catch(err){notify('資料讀取失敗：'+err.message)}},0)}});const {data,error}=await db.auth.getSession();if(error)throw error;s.user=data.session?.user||null;if(s.user)await refresh();render()}catch(err){root.innerHTML='<section><h2>初始化失敗</h2><p class="notice">'+esc(err.message)+'</p></section>'}}
+if(configOK){try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');db=createClient(SUPA_URL,KEY);db.auth.onAuthStateChange((_,session)=>{const prevId=s.user?.id;s.user=session?.user||null;if(!s.user){s.workouts=[];s.plans=[];s.body=[];s.current=null;render()}else if(prevId!==s.user.id){setTimeout(async()=>{try{await refresh();render()}catch(err){notify('資料讀取失敗：'+err.message)}},0)}});const {data,error}=await db.auth.getSession();if(error)throw error;s.user=data.session?.user||null;if(s.user)await refresh();render()}catch(err){root.innerHTML='<section><h2>初始化失敗</h2><p class="notice">'+esc(err.message)+'</p></section>'}}
