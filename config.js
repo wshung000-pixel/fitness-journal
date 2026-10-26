@@ -1,3 +1,3 @@
-// 在 Supabase 建立專案、執行 schema.sql 後填入。只能填 publishable/anon key，絕不可填 secret/service_role key。
-export const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-export const SUPABASE_ANON_KEY = "YOUR_PUBLISHABLE_OR_ANON_KEY";
+// Supabase 公開金鑰（publishable key），資料存取由 Auth + RLS 保護。
+export const SUPABASE_URL = "https://qnqylxdrdtklhglkfcom.supabase.co";
+export const SUPABASE_ANON_KEY = "sb_publishable_diBIJiBkuwhs0VH3MzadwQ__VAF75iJ";
