@@ -2,16 +2,188 @@ import {SUPABASE_URL as SUPA_URL,SUPABASE_ANON_KEY as KEY} from './config.js';
 const root=document.querySelector('#app'), nav=document.querySelector('#nav'), badge=document.querySelector('#status');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
-const id=()=>crypto.randomUUID(), exnames=['深蹲','臥推','硬舉','啞鈴臥推','啞鈴肩推','滑輪下拉','坐姿划船','腿推舉','引體向上','啞鈴二頭彎舉','三頭肌下壓','跑步','飛輪','快走'];
+const id=()=>crypto.randomUUID();
 const s={user:null,tab:'today',workouts:[],plans:[],body:[],current:null,editing:false,busy:false};
 const exerciseGroups={
-'胸部':['臥推','啞鈴臥推','上斜啞鈴臥推','胸推機','滑輪夾胸','伏地挺身'],
-'背部':['硬舉','滑輪下拉','坐姿划船','引體向上','單臂啞鈴划船','直臂下拉'],
-'肩部':['啞鈴肩推','槓鈴肩推','啞鈴側平舉','反向飛鳥','面拉'],
-'腿部':['深蹲','腿推舉','羅馬尼亞硬舉','腿屈伸','腿後勾','保加利亞分腿蹲','提踵'],
-'手臂':['啞鈴二頭彎舉','槓鈴彎舉','三頭肌下壓','過頭三頭伸展'],
-'核心':['平板支撐','捲腹','懸垂舉腿'],
-'有氧':['跑步','飛輪','快走','滑步機','划船機']};
+  "胸部": [
+    "槓鈴平板臥推",
+    "槓鈴上斜臥推",
+    "槓鈴下斜臥推",
+    "啞鈴平板臥推",
+    "啞鈴上斜臥推",
+    "啞鈴下斜臥推",
+    "啞鈴飛鳥",
+    "上斜啞鈴飛鳥",
+    "滑輪夾胸",
+    "高位滑輪夾胸",
+    "低位滑輪夾胸",
+    "胸推機",
+    "上斜胸推機",
+    "蝴蝶機夾胸",
+    "史密斯機臥推",
+    "伏地挺身",
+    "雙槓撐體",
+    "單邊胸推機",
+    "臥推",
+    "啞鈴臥推",
+    "上斜啞鈴臥推"
+  ],
+  "背部": [
+    "傳統硬舉",
+    "相撲硬舉",
+    "羅馬尼亞硬舉",
+    "引體向上",
+    "反手引體向上",
+    "輔助引體向上",
+    "滑輪下拉",
+    "寬握滑輪下拉",
+    "窄握滑輪下拉",
+    "反手滑輪下拉",
+    "單臂滑輪下拉",
+    "坐姿划船",
+    "窄握坐姿划船",
+    "寬握坐姿划船",
+    "槓鈴划船",
+    "反手槓鈴划船",
+    "T槓划船",
+    "胸靠式划船",
+    "單臂啞鈴划船",
+    "啞鈴划船",
+    "機械式划船",
+    "高位划船機",
+    "直臂下拉",
+    "滑輪上拉",
+    "啞鈴上拉",
+    "背伸展",
+    "硬舉"
+  ],
+  "肩部": [
+    "槓鈴肩推",
+    "啞鈴肩推",
+    "坐姿啞鈴肩推",
+    "史密斯機肩推",
+    "機械式肩推",
+    "阿諾肩推",
+    "啞鈴側平舉",
+    "滑輪側平舉",
+    "單臂滑輪側平舉",
+    "機械式側平舉",
+    "啞鈴前平舉",
+    "槓鈴前平舉",
+    "啞鈴反向飛鳥",
+    "反向蝴蝶機",
+    "滑輪反向飛鳥",
+    "面拉",
+    "啞鈴聳肩",
+    "槓鈴聳肩",
+    "直立划船"
+  ],
+  "腿部": [
+    "槓鈴深蹲",
+    "高槓深蹲",
+    "低槓深蹲",
+    "前蹲舉",
+    "高腳杯深蹲",
+    "史密斯機深蹲",
+    "哈克深蹲",
+    "保加利亞分腿蹲",
+    "啞鈴弓箭步",
+    "槓鈴弓箭步",
+    "行走弓箭步",
+    "腿推舉",
+    "單腿腿推舉",
+    "腿屈伸",
+    "單腿腿屈伸",
+    "坐姿腿後勾",
+    "俯臥腿後勾",
+    "站姿腿後勾",
+    "羅馬尼亞硬舉",
+    "直腿硬舉",
+    "臀推",
+    "槓鈴臀推",
+    "臀橋",
+    "滑輪後踢腿",
+    "髖外展機",
+    "髖內收機",
+    "站姿提踵",
+    "坐姿提踵",
+    "登階",
+    "六角槓硬舉",
+    "深蹲",
+    "腿後勾"
+  ],
+  "二頭肌": [
+    "啞鈴二頭彎舉",
+    "交替啞鈴彎舉",
+    "槌式彎舉",
+    "斜板啞鈴彎舉",
+    "集中彎舉",
+    "槓鈴二頭彎舉",
+    "EZ槓彎舉",
+    "牧師椅彎舉",
+    "滑輪二頭彎舉",
+    "繩索槌式彎舉",
+    "反手彎舉",
+    "機械式二頭彎舉"
+  ],
+  "三頭肌": [
+    "三頭肌下壓",
+    "繩索三頭肌下壓",
+    "直槓三頭肌下壓",
+    "反手三頭肌下壓",
+    "滑輪過頭三頭伸展",
+    "啞鈴過頭三頭伸展",
+    "法式推舉",
+    "仰臥三頭伸展",
+    "窄握臥推",
+    "雙槓撐體",
+    "機械式三頭伸展",
+    "啞鈴後踢"
+  ],
+  "前臂": [
+    "槓鈴腕彎舉",
+    "反向腕彎舉",
+    "農夫走路",
+    "握力器訓練",
+    "腕滾輪"
+  ],
+  "核心": [
+    "捲腹",
+    "滑輪捲腹",
+    "反向捲腹",
+    "仰臥起坐",
+    "懸垂舉腿",
+    "懸垂抬膝",
+    "羅馬椅抬腿",
+    "平板支撐",
+    "側平板支撐",
+    "死蟲式",
+    "鳥狗式",
+    "俄羅斯轉體",
+    "腹輪",
+    "Pallof Press",
+    "登山者式",
+    "負重捲腹"
+  ],
+  "有氧": [
+    "跑步機跑步",
+    "戶外跑步",
+    "快走",
+    "跑步機斜坡快走",
+    "飛輪",
+    "室內腳踏車",
+    "戶外自行車",
+    "橢圓機",
+    "滑步機",
+    "划船機",
+    "階梯機",
+    "跳繩",
+    "游泳",
+    "登山健行",
+    "HIIT",
+    "衝刺間歇"
+  ]
+};
 const groupOf=name=>Object.keys(exerciseGroups).find(g=>exerciseGroups[g].includes(name))||'自訂';
 const timer={seconds:90,end:0,handle:null};
 function remaining(){return timer.end?Math.max(0,Math.ceil((timer.end-Date.now())/1000)):0}
@@ -53,7 +225,7 @@ w.entries.map((e,i)=>'<section class="exercise-card"><div class="row"><h3>'+esc(
 '<div class="set-head"><span>組</span><span>重量 kg</span><span>次數</span><span>完成</span></div>'+
 e.sets.map((q,j)=>'<div class="quick-set '+(q.done?'set-done':'')+'"><b>'+(j+1)+'</b><input type="number" inputmode="decimal" min="0" step="0.5" aria-label="重量" data-i="'+i+'" data-j="'+j+'" data-field="weight" value="'+esc(q.weight)+'"><input type="number" inputmode="numeric" min="0" step="1" aria-label="次數" data-i="'+i+'" data-j="'+j+'" data-field="reps" value="'+esc(q.reps)+'"><button data-act="toggle-set" data-i="'+i+'" data-j="'+j+'" aria-pressed="'+q.done+'" class="'+(q.done?'complete':'alt')+'">'+(q.done?'✓':'○')+'</button></div>').join('')+
 '<button class="add-row" data-act="addset" data-i="'+i+'">＋ 下一組</button></section>').join('')+
-'<section class="exercise-card"><h3>＋ 加入動作</h3><div class="row"><input id="custom" list="exercise-options" placeholder="搜尋動作名稱" autocomplete="off"><button data-act="add-ex">加入</button></div><datalist id="exercise-options">'+Object.values(exerciseGroups).flat().map(x=>'<option value="'+esc(x)+'"></option>').join('')+'</datalist></section>'+
+'<section class="exercise-card"><h3>＋ 加入動作</h3><div class="row"><input id="custom" list="exercise-options" placeholder="搜尋動作名稱" autocomplete="off"><button data-act="add-ex">加入</button></div><datalist id="exercise-options">'+[...new Set(Object.values(exerciseGroups).flat())].map(x=>'<option value="'+esc(x)+'"></option>').join('')+'</datalist></section>'+
 '<div class="finish-panel"><button class="primary-full" data-act="save-workout">✓ 結束並儲存</button><details><summary>更多選項</summary>'+field('日期',w.performed_on,'date','id="date"')+field('訓練名稱',w.title,'text','id="title"')+'<label>備註</label><textarea id="notes">'+esc(w.notes)+'</textarea><div class="actions"><button class="alt" data-act="stop-rest">停止計時</button><button class="alt" data-act="cancel">取消訓練</button></div></details></div></div>';
 }
 function plansPage(){return '<h2>我的課表</h2><section>'+field('課表名稱','','text','id="pname" placeholder="例如：Push Day"')+'<label>動作，每行一個</label><textarea id="pex" rows="5" placeholder="啞鈴臥推&#10;啞鈴肩推&#10;三頭肌下壓"></textarea><p><button data-act="save-plan">新增課表</button></p></section>'+s.plans.map(p=>'<section><h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.exercises.map(e=>e.name||e).join(' · '))+'</p><div class="actions"><button data-act="start" data-id="'+p.id+'">開始訓練</button><button class="danger" data-act="del-plan" data-id="'+p.id+'">刪除</button></div></section>').join('')}
